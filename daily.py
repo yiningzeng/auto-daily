@@ -52,7 +52,7 @@ if __name__ == '__main__':
     scheduler.add_job(create_daily, 'cron', second="0", minute="5", hour="1", day_of_week="MON-SUN")
     # 启动调度任务
     scheduler.start()
-    bot.file_helper.send('小秘书已启动')
+    bot.file_helper.send('runing:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     # 堵塞线程
     # embed()
     bot.join()
