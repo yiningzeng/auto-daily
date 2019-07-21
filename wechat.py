@@ -8,11 +8,32 @@ from wxpy import *
 if __name__ == '__main__':
     bot = Bot(cache_path=True, console_qr=True)
 
+
+    # 定义需要检测的操作
+    def action():
+        bot.file_helper.send()
+
+
+    # 执行检测
+    # result = detect_freq_limit(action)
+    # 查看结果
+    # print(result)
+    # 限制次数, 限制周期(秒数)
+    # (27, 5.388065576553345)
+
     # 机器人账号自身
     myself = bot.self
+    # 查询朋友
+    my_friends = bot.friends().search('wutuo')
+    # 确保搜索结果是唯一的，并取出唯一结果
+    one_friend = ensure_one(my_friends)
 
+    one_friend.send('Hello, WeChat!')
+
+    # 查询群聊
+    my_group = ensure_one(bot.groups().search('小柠檬', [one_friend]))
     # 向文件传输助手发送消息
-    bot.file_helper.send('Hello from wxpy!')
+    bot.file_helper.send('私人助理启动啦!')
 
     # 打印来自其他好友、群聊和公众号的消息
     @bot.register()
@@ -24,6 +45,15 @@ if __name__ == '__main__':
     def reply_my_friend(msg):
         return 'received: {} ({})'.format(msg.text, msg.type)
 
+    @bot.register(my_group)
+    def auto_reply(msg):
+        # 如果是群聊，但没有被 @，则不回复
+        if isinstance(msg.chat, my_group) and not msg.is_at:
+            return '收到消息: {} ({})'.format(msg.text, msg.type)
+        else:
+            # 回复消息内容和类型
+            return '收到消息: {} ({})'.format(msg.text, msg.type)
+
     # 自动接受新的好友请求
     @bot.register(msg_types=FRIENDS)
     def auto_accept_friends(msg):
@@ -32,5 +62,24 @@ if __name__ == '__main__':
         # 向新的好友发送消息
         new_friend.send('哈哈，我自动接受了你的好友请求')
 
+
+    # 定位公司群
+    company_group = ensure_one(bot.groups().search('小柠檬'))
+
+    # 定位老板
+    boss = ensure_one(company_group.search('wutuo'))
+
+
+    # # 将老板的消息转发到文件传输助手
+    # @bot.register(company_group)
+    # def forward_boss_message(msg):
+    #     if msg.member == boss:
+    #         msg.forward(bot.file_helper, prefix='老板发言')
+
+
     # 堵塞线程
     embed()
+
+
+    # 堵塞进程，直到结束消息监听 (例如，机器人被登出时)
+    # bot.join()
