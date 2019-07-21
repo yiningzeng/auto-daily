@@ -30,10 +30,14 @@ if __name__ == '__main__':
 
     one_friend.send('Hello, WeChat!')
 
+    groups = bot.groups(update=True, contact_only=True)
     # 查询群聊
-    my_group = ensure_one(bot.groups().search('小柠檬', [one_friend]))
+    my_group = ensure_one(groups)
     # 向文件传输助手发送消息
     bot.file_helper.send('私人助理启动啦!')
+    bot.file_helper.send('https://wxpy.readthedocs.io/zh/latest/chats.html')
+
+    my_group.send('Hello, WeChat!')
 
     # 打印来自其他好友、群聊和公众号的消息
     @bot.register()
