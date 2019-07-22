@@ -1,4 +1,6 @@
 #!/bin/bash
+git stash
+git pull
 date=$(date "+%Y-%m-%d")
 mkdir $date
 echo "# "$date" 日报(曾伟)" >> $date"/007.md"
