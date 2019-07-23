@@ -49,7 +49,7 @@ if __name__ == '__main__':
         # 机器人账号自身
         res = requests.get('https://github.com/yiningzeng/auto-daily/blob/master/' +
                            datetime.datetime.now().strftime('%Y-%m-%d') +
-                           '/007.md')  # 获取目标网页
+                           '/README.md')  # 获取目标网页
         soup = BeautifulSoup(res.text, 'html.parser')  # 爬取网页
         readme = soup.find(id="readme").text
         # 向文件传输助手发送消息
