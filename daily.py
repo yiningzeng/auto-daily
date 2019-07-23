@@ -4,11 +4,31 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import urllib
+import sys
 from wxpy import *
 from apscheduler.schedulers.background import BackgroundScheduler
 
 if __name__ == '__main__':
+
+    print(sys.argv[1])
     bot = Bot(cache_path=True, console_qr=True)
+    myself = bot.self
+
+    is_reply = sys.argv[1]
+
+    # 打印来自其他好友、群聊和公众号的消息
+    @bot.register()
+    def print_others(msg):
+        global is_reply
+        print(msg)
+        if msg.is_at:
+            os.system("notify-send '%s - %s' '%s' -t %d" % (msg.sender, msg.create_time, msg, 100000))
+            pre = msg.member.name + " " + msg.member.display_name + ' @提醒: '
+            msg.forward(bot.file_helper, prefix=pre)
+            if is_reply == "1":
+                return "已提醒: 收到👌"
+        else:
+            os.system("notify-send '%s - %s' '%s' -t %d" % (msg.sender, msg.create_time, msg, 10000))
 
     def create_daily():
         os.system('sh auto_create_daily.sh')
@@ -23,11 +43,10 @@ if __name__ == '__main__':
         git push -u origin master
         :return: 
         """
+
     def send_daily():
         print('send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         # 机器人账号自身
-        myself = bot.self
-
         res = requests.get('https://github.com/yiningzeng/auto-daily/blob/master/' +
                            datetime.datetime.now().strftime('%Y-%m-%d') +
                            '/007.md')  # 获取目标网页

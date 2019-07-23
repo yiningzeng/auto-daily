@@ -1,2 +1,2 @@
 #!/bin/bash
-nohup python daily.py > wechat.log 2>&1 &
+nohup python daily.py $1> wechat.log 2>&1 &
