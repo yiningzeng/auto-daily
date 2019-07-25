@@ -41,6 +41,12 @@ if __name__ == '__main__':
         else:
             os.system("notify-send '%s - %s' '%s' -t %d" % (msg.sender, msg.create_time, msg, 10000))
 
+    def remind():
+        i = 0
+        while i < 20:
+            os.system("notify-send '%s' '%s' -t %d" % ('写日报', '写日报', 100000))
+            i = i + 1
+
     def create_daily():
         os.system('sh auto_create_daily.sh')
         log.info('Job-create_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
@@ -87,6 +93,10 @@ if __name__ == '__main__':
     # 创建后台执行的 schedulers
     scheduler = BackgroundScheduler()
     # 添加调度任务
+
+    # 提醒写日报
+    scheduler.add_job(remind, 'cron', second="0", minute="40", hour="18", day_of_week="MON-SAT")
+
     scheduler.add_job(create_daily, 'cron', second="0", minute="5", hour="1", day_of_week="MON-SUN")
     scheduler.add_job(push_daily, 'cron', second="0", minute="5", hour="19", day_of_week="MON-SUN")
     # 调度方法为 timedTask，触发器选择 interval(间隔性)，间隔时长为 2 秒  0 15 10 ? * MON-FRI
