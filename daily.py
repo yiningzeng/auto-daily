@@ -5,22 +5,33 @@ import requests
 import os
 import urllib
 import sys
+import logging as log
 from wxpy import *
 from apscheduler.schedulers.background import BackgroundScheduler
 
 if __name__ == '__main__':
 
-    print(sys.argv[1])
+    log.basicConfig(level=log.INFO,  # 控制台打印的日志级别
+                        filename='wechat.log',
+                        filemode='a',  ##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
+                        # a是追加模式，默认如果不写的话，就是追加模式
+                        format=
+                        '%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
+                        # 日志格式
+                        )
+
+
     bot = Bot(cache_path=True, console_qr=True)
     myself = bot.self
 
     is_reply = sys.argv[1]
+    log.info("群聊@提醒开启状态：%s" % is_reply)
 
     # 打印来自其他好友、群聊和公众号的消息
     @bot.register()
     def print_others(msg):
         global is_reply
-        print(msg)
+        log.info(msg)
         if msg.is_at:
             os.system("notify-send '%s - %s' '%s' -t %d" % (msg.sender, msg.create_time, msg, 100000))
             pre = msg.member.name + " " + msg.member.display_name + ' @提醒: '
@@ -32,14 +43,16 @@ if __name__ == '__main__':
 
     def create_daily():
         os.system('sh auto_create_daily.sh')
+        log.info('Job-create_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         # os.system('sh test.sh')
-        print('Job-create_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        # print('Job-create_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
     def push_daily():
         os.system('sh auto_push_daily.sh')
         bot.file_helper.send("已经push日志，如果已经填写，请忽略。20:30分准时发日报")
         # os.system('sh test.sh')
-        print('Job-push_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        log.info('Job-push_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        # print('Job-push_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         """
         echo "# -" >> README.md
         git init
@@ -51,7 +64,8 @@ if __name__ == '__main__':
         """
 
     def send_daily():
-        print('send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        log.info('start > send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        # print('send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         # 机器人账号自身
         res = requests.get('https://github.com/yiningzeng/auto-daily/blob/master/' +
                            datetime.datetime.now().strftime('%Y-%m-%d') +
@@ -65,8 +79,10 @@ if __name__ == '__main__':
         # my_group = ensure_one(bot.groups().search('日报'))
         # bot.file_helper.send('Hello from wxpy!')
         # my_group.send('发日报啦!')
-        print('send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-        print('------------------------------------------------------------------------')
+        log.info('end > send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        log.info('------------------------------------------------------------------------')
+        # print('send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        # print('------------------------------------------------------------------------')
 
     # 创建后台执行的 schedulers
     scheduler = BackgroundScheduler()
