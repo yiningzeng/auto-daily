@@ -80,6 +80,8 @@ if __name__ == '__main__':
         readme = soup.find(id="readme").text
         # 向文件传输助手发送消息
         bot.file_helper.send(readme)
+        daily_group = ensure_one(bot.groups().search('轻蜓日报'))
+        daily_group.send(readme)
         # groups = bot.groups(update=True, contact_only=True)
         # 查询群聊
         # my_group = ensure_one(bot.groups().search('日报'))
