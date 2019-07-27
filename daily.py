@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-import datetime
+from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
 import os
@@ -10,7 +10,6 @@ from wxpy import *
 from apscheduler.schedulers.background import BackgroundScheduler
 
 if __name__ == '__main__':
-
     log.basicConfig(level=log.INFO,  # 控制台打印的日志级别
                         filename='wechat.log',
                         filemode='a',  ##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
@@ -19,7 +18,6 @@ if __name__ == '__main__':
                         '%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
                         # 日志格式
                         )
-
 
     bot = Bot(cache_path=True, console_qr=True)
     myself = bot.self
@@ -49,16 +47,16 @@ if __name__ == '__main__':
 
     def create_daily():
         os.system('sh auto_create_daily.sh')
-        log.info('Job-create_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        log.info('Job-create_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         # os.system('sh test.sh')
-        # print('Job-create_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        # print('Job-create_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
     def push_daily():
         os.system('sh auto_push_daily.sh')
         bot.file_helper.send("已经push日志，如果已经填写，请忽略。20:30分准时发日报")
         # os.system('sh test.sh')
-        log.info('Job-push_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-        # print('Job-push_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        log.info('Job-push_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        # print('Job-push_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         """
         echo "# -" >> README.md
         git init
@@ -70,11 +68,29 @@ if __name__ == '__main__':
         """
 
     def send_daily():
-        log.info('start > send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-        # print('send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        today = datetime.now().weekday()
+
+        if today > 5:
+            log.info('start > 周日不发周报:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            return
+        elif today == 5:
+            # 判断是否节假日
+            res = requests.get('https://github.com/yiningzeng/auto-daily/blob/master/is_holiday.md')  # 获取目标网页
+            soup = BeautifulSoup(res.text, 'html.parser')  # 爬取网页
+            is_holiday = soup.find(id="readme").text.replace("\n", "")
+            if is_holiday == "1":
+                log.info('start > 本周六是节假日不发周报:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                bot.file_helper.send("本周六是节假日不发周报")
+                os.system('sh change_saturday_status.sh 0')
+                return
+            else:
+                os.system('sh change_saturday_status.sh 1')
+
+        log.info('start > send_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        # print('send_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         # 机器人账号自身
         res = requests.get('https://github.com/yiningzeng/auto-daily/blob/master/' +
-                           datetime.datetime.now().strftime('%Y-%m-%d') +
+                           datetime.now().strftime('%Y-%m-%d') +
                            '/README.md')  # 获取目标网页
         soup = BeautifulSoup(res.text, 'html.parser')  # 爬取网页
         readme = soup.find(id="readme").text
@@ -87,9 +103,9 @@ if __name__ == '__main__':
         # my_group = ensure_one(bot.groups().search('日报'))
         # bot.file_helper.send('Hello from wxpy!')
         # my_group.send('发日报啦!')
-        log.info('end > send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        log.info('end > send_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         log.info('------------------------------------------------------------------------')
-        # print('send_daily:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        # print('send_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         # print('------------------------------------------------------------------------')
 
     # 创建后台执行的 schedulers
@@ -107,7 +123,7 @@ if __name__ == '__main__':
 
     # 启动调度任务
     scheduler.start()
-    bot.file_helper.send('runing:%s' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    bot.file_helper.send('runing:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     # 堵塞线程
     # embed()
     bot.join()
