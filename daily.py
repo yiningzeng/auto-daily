@@ -81,10 +81,10 @@ if __name__ == '__main__':
             if is_holiday == "1":
                 log.info('start > 本周六是节假日不发周报:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
                 bot.file_helper.send("本周六是节假日不发周报")
-                os.system('sh change_saturday_status.sh 0')
+                os.system('sh change_saturday_type.sh 0')
                 return
             else:
-                os.system('sh change_saturday_status.sh 1')
+                os.system('sh change_saturday_type.sh 1')
 
         log.info('start > send_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         # print('send_daily:%s' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
