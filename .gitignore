@@ -2,5 +2,6 @@
 \.idea/
 
 wxpy\.pkl
-
+*.log
+*.txt
 wechat\.log
