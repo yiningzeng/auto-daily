@@ -5,3 +5,5 @@ wxpy\.pkl
 *.log
 *.txt
 wechat\.log
+
+*.swp
